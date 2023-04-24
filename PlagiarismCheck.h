@@ -3,7 +3,7 @@
 #include "Hash.h"
 #include "RabinKarp"
 #include "Brute"
-class PlagiarismCheck:protected Hash:protected Rabin Karp:protected Brute
+class PlagiarismCheck:protected Hash:protected RabinKarp:protected Brute
 {
 protected:
     Corpus *corpus;
