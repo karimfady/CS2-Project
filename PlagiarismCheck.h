@@ -1,5 +1,5 @@
-#ifndef RabinKarp_h
-#define RabinKarp_h
+#ifndef PlagiarismCheck_h
+#define PlagiarismCheck_h
 #include "Hash.h"
 #include "RabinKarp"
 #include "Brute"
