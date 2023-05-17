@@ -6,61 +6,75 @@ using namespace std;
 
 class RBK {
 private:
-        int occur = 0;
+    static const int prime = 101;  
+    static const int base = 256;   
+
 public:
-    const int mod = 1e9 + 9;
-    const int prime = 31;
+    static int rkcheckPattern(const string& pattern, const string& text) {
+        int patternLength = pattern.length();
+        int textLength = text.length();
 
-    int pwr(int n, int r) {
-        int res = 1;
-        while (r > 0) {
-            if (r & 1) {
-                res = (res * n) % mod;
-            }
-            n = (n * n) % mod;
-            r /= 2;
-        }
-        return res;
-    }
-
-    int modInverse(int n) {
-        int ans = pwr(n, mod - 2);
-        return ans;
-    }
-
-     void rabinkarp(string s, string p) {
-        int hash_p = 0;
-        int n = s.length();
-        int m = p.length();
-        int mul = 1;
-
-        for (int i = 0; i < m; i++) {
-            hash_p += (p[i] - 'a' + 1) * mul, hash_p %= mod;
-            mul *= prime, mul %= mod;
+        if (patternLength > textLength) {
+            return false; 
         }
 
-        int hash_s = 0, j = 0;
-        mul = 1;
-        int modI = modInverse(prime);
+        int patternHash = calculateHash(pattern, patternLength);
+        int textHash = calculateHash(text, patternLength);
 
-        for (int i = 0; i < n; i++) {
-            if (i < m) {
-                hash_s += (s[i] - 'a' + 1) * mul, hash_s %= mod;
-                if (i + 1 < m) mul *= prime, mul %= mod;
-            }
-            else {
-                hash_s -= (s[j++] - 'a' + 1);
-                hash_s *= modI, hash_s %= mod;
-                hash_s += (s[i] - 'a' + 1) * mul, hash_s %= mod;
+        for (int i = 0; i <= textLength - patternLength; ++i) {
+            if (patternHash == textHash && compareStrings(pattern, text, i)) {
+                return true; 
             }
 
-            if (hash_s == hash_p) {
-                occur++;
+            if (i < textLength - patternLength) {
+                
+                textHash = recalculateHash(textHash, text, i, patternLength);
             }
-        } 
+        }
+
+        return false; 
     }
-     int getoccur() {
-         return occur;
-     }
 
+private:
+    static int calculateHash(const string& str, int length) {
+        int hash = 0;
+
+        for (int i = 0; i < length; ++i) {
+            hash = (hash * base + str[i]) % prime;
+        }
+
+        return hash;
+    }
+
+    static int recalculateHash(int oldHash, const string& str, int oldIndex, int patternLength) {
+        int newHash = (oldHash - (str[oldIndex] * power(base, patternLength - 1) % prime) + prime) % prime;
+        newHash = (newHash * base + str[oldIndex + patternLength]) % prime;
+        return newHash;
+    }
+
+    static bool compareStrings(const string& pattern, const string& text, int startIndex) {
+        for (int i = 0; i < pattern.length(); ++i) {
+            if (pattern[i] != text[startIndex + i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static int power(int base, int exponent) {
+        int result = 1;
+
+        while (exponent > 0) {
+            if (exponent % 2 == 1) {
+                result = (result * base) % prime;
+            }
+
+            base = (base * base) % prime;
+            exponent /= 2;
+        }
+
+        return result;
+    }
 };
+
