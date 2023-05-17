@@ -2,23 +2,29 @@
 #include "HM.h"
 #include <iostream>
 using namespace std;
-int BR::bruteForceSearch(const string& line, const string& check) {
-    int lineLength = line.length();
-    int checkLength = check.length();
+int BR::bruteForceSearch(const string& pattern, const string& text) {
 
-    int j = 0;
-    int occur = 0;
+    int patternLength = pattern.length();
+    int textLength = text.length();
 
-    for (int i = 0; i <= lineLength - checkLength; ++i) {
-        j = 0;
-        while (j < checkLength && line[i] == check[j]) {
-            i++;
-            j++;
+    if (patternLength > textLength) {
+        return false; 
+    }
+
+    for (int i = 0; i <= textLength - patternLength; ++i) {
+        int j;
+        for (j = 0; j < patternLength; ++j) {
+            if (text[i + j] != pattern[j]) {
+                break;  
+            }
         }
 
-        if (j == checkLength) {
-            occur++;
+        if (j == patternLength) {
+            return true;  
         }
     }
-    return occur;
-}
+
+    return false; 
+};
+   
+
