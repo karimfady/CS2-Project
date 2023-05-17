@@ -12,36 +12,43 @@ double PL::compareUsingBruteForce(string filename) {
     file.readfile(file.getfilename());
     vector<string>& fileContents = file.getContents();
 
-    totaloffile = file.getcountss(filename);
-   
+    btotaloffile = file.getcountss(filename);
 
-   
-
-    for (int i = 0; i < totaloffile; ++i) {
+    for (int i = 0; i < btotaloffile; ++i) {
         const string& fileLine = fileContents[i];
         vector<string> fileWords = extractWords(fileLine);
         int numberofwordsofline = fileWords.size();
-        
+        vector<bool> isrp(numberofwordsofline, false);
 
-        bool isPlagiarized = false; 
+        for (int z = 0; z < numberofwordsofline; z++) {
+            for (int a = z + 1; a < numberofwordsofline; a++) {
+                if (fileWords[z] == fileWords[a] && !isrp[a]) {
+                    isrp[a] = true;
+                }
+            }
+        }
+
+        bool isPlagiarized = false;
 
         for (int j = 0; j < corpus.getSize(); ++j) {
-            const string& corpusLine = corpus.getLineFromFile(0, j);
-            vector<string> corpusWords = extractWords(corpusLine);
-            int numberofwordsofcorpus = corpusWords.size();
-
+            const string& corpusLine = corpus.getLineFromFile(j);
             int match = 0;
-            for (const string& fileWord : fileWords) { 
-
-                
-                for (const string& corpusWord : corpusWords) {
-                    auto starts = std::chrono::steady_clock::now();
-                    match += BR::bruteForceSearch(fileWord, corpusWord);
-                    auto ends = std::chrono::steady_clock::now();
-                    timetaken = std::chrono::duration_cast<std::chrono::nanoseconds>(ends - starts).count();
+            int totalWords = 0;
+            int count = 0;
+            for (int b = 0; b < numberofwordsofline; b++) {
+            
+                if (isrp[b]) {
+                    count++;
                 }
-                
-               
+                else {
+                    const string& fileWord = fileWords[b];
+   
+                        auto starts = std::chrono::steady_clock::now();
+                        match += BR::bruteForceSearch(fileWord, corpusLine);
+                        auto ends = std::chrono::steady_clock::now();
+                        btimetaken = std::chrono::duration_cast<std::chrono::nanoseconds>(ends - starts).count();
+                    
+                }
             }
 
             if (match >= numberofwordsofline / 2) {
@@ -51,53 +58,62 @@ double PL::compareUsingBruteForce(string filename) {
         }
 
         if (isPlagiarized) {
-            matchingCount++;
-            
+            bmatchingCount++;
         }
-       
-
-        
     }
-    percentage = calculatePercentage();
-    cout << timetaken << "  In nano seconds to for a loop of an algorthim" << endl;
-    return percentage;
+
+    bpercentage = bcalculatePercentage();
+    cout << btimetaken << " In nanoseconds for a loop of an algorithm" << endl;
+    return bpercentage;
 }
+
+
+
+
+
 
 double PL::compareUsingRabinKarp(string filename) {
     FL file(filename);
     file.readfile(file.getfilename());
     vector<string>& fileContents = file.getContents();
 
-    totaloffile = file.getcountss(filename);
+    rtotaloffile = file.getcountss(filename);
 
-
-    for (int i = 0; i < totaloffile; ++i) {
+    for (int i = 0; i < rtotaloffile; ++i) {
         const string& fileLine = fileContents[i];
         vector<string> fileWords = extractWords(fileLine);
         int numberofwordsofline = fileWords.size();
+        vector<bool> isrp(numberofwordsofline, false);
 
+        for (int z = 0; z < numberofwordsofline; z++) {
+            for (int a = z + 1; a < numberofwordsofline; a++) {
+                if (fileWords[z] == fileWords[a] && !isrp[a]) {
+                    isrp[a] = true;
+                }
+            }
+        }
 
         bool isPlagiarized = false;
 
         for (int j = 0; j < corpus.getSize(); ++j) {
-            const string& corpusLine = corpus.getLineFromFile(0, j);
-            vector<string> corpusWords = extractWords(corpusLine);
-            int numberofwordsofcorpus = corpusWords.size();
-
+            const string& corpusLine = corpus.getLineFromFile(j);
             int match = 0;
-            for (const string& fileWord : fileWords) {
-                for (const string& corpusWord : corpusWords) {
-                    if (fileWord.size() > 0 && corpusWord.size() > 0) {
-                        auto starts = std::chrono::steady_clock::now();
-                        RBK rbk;
-                        rbk.rabinkarp(fileWord, corpusWord);
-                        match += rbk.getoccur();
-                        auto ends = std::chrono::steady_clock::now();
-                        timetaken = std::chrono::duration_cast<std::chrono::nanoseconds>(ends - starts).count();
-                    }
+            int totalWords = 0;
+            int count = 0;
+            for (int b = 0; b < numberofwordsofline; b++) {
+
+                if (isrp[b]) {
+                    count++;
+                }
+                else {
+                    const string& fileWord = fileWords[b];
+                    auto starts = std::chrono::steady_clock::now();
+                    match += RBK::rkcheckPattern(fileWord, corpusLine);
+                    auto ends = std::chrono::steady_clock::now();
+                    rtimetaken = std::chrono::duration_cast<std::chrono::nanoseconds>(ends - starts).count();
+
                 }
             }
-
 
             if (match >= numberofwordsofline / 2) {
                 isPlagiarized = true;
@@ -106,19 +122,13 @@ double PL::compareUsingRabinKarp(string filename) {
         }
 
         if (isPlagiarized) {
-            matchingCount++;
-
+            rmatchingCount++;
         }
-
-
-
     }
 
-
-
-    percentage = calculatePercentage();
-    cout << timetaken << "  In nano seconds to for a loop of an algorthim" << endl;
-    return percentage;
+    rpercentage = rcalculatePercentage();
+    cout << rtimetaken << " In nanoseconds for a loop of an algorithm" << endl;
+    return rpercentage;
 }
 
 
@@ -126,13 +136,21 @@ double PL::compareUsingRabinKarp(string filename) {
  
 
 
-double PL::calculatePercentage() {
+double PL::rcalculatePercentage() {
    
- return (matchingCount/ double(totaloffile)) * 100.0;
+ return (rmatchingCount/ double(rtotaloffile)) * 100.0;
     
 }
-int PL::gettimetaken() {
-    return timetaken;
+int PL::rgettimetaken() {
+    return rtimetaken;
+}
+double PL::bcalculatePercentage() {
+
+    return (bmatchingCount / double(btotaloffile)) * 100.0;
+
+}
+int PL::bgettimetaken() {
+    return btimetaken;
 }
 
 vector<string> PL:: extractWords(const string& line) {
