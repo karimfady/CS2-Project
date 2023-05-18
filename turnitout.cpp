@@ -44,12 +44,10 @@ bool TurnItOut::checkEmailAndPassword(QString email,QString password)
        p.close();
        if(i==j)
           {
-            ui->label_5->setText("true");
            return true;
        }
        else
        {
-           ui->label_5->setText("false");
            return false;
        }
 
